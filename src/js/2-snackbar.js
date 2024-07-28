@@ -1,45 +1,36 @@
-const formData = { email: '', message: '' };
+// Описаний у документації
+import iziToast from 'izitoast';
+// Додатковий імпорт стилів
+import 'izitoast/dist/css/iziToast.min.css';
 
-const STORAGE_KEY = 'feedback-form-state';
+const input = document.querySelector('[name="delay"]');
+const form = document.querySelector('.form');
 
-const form = document.querySelector('.feedback-form');
+form.addEventListener('submit', createPromise);
 
-populateForm();
+// input.addEventListener('input', handleInput);
 
-form.addEventListener('input', handleInput);
-form.addEventListener('submit', handleSubmit);
-
-function handleInput(event) {
-  const key = event.target.name;
-  const value = event.target.value;
-
-  formData[key] = value;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-}
-
-function populateForm() {
-  const savedMsg = localStorage.getItem(STORAGE_KEY);
-
-  if (savedMsg) {
-    const parsedMsg = JSON.parse(savedMsg);
-    formData.email = parsedMsg.email;
-    formData.message = parsedMsg.message;
-
-    form.email.value = formData.email;
-    form.message.value = formData.message;
-  }
-}
-function handleSubmit(event) {
+function createPromise(event) {
   event.preventDefault();
+  const promise = new Promise((resolve, reject) => {
+    const delay = Number(input.value);
+    const selectedRadio = document.querySelector('input[name="state"]:checked');
+    const value = selectedRadio.value;
 
-  if (!formData.email || !formData.message) {
-    alert('Fill please all fields');
-    return;
-  }
-
-  console.log(formData);
-  localStorage.removeItem(STORAGE_KEY);
-  formData.email = '';
-  formData.message = '';
-  event.currentTarget.reset();
+    setTimeout(() => {
+      if (value === 'fulfilled') {
+        iziToast.success({
+          title: 'Success',
+          message: `✅ Fulfilled promise in ${delay}ms`,
+        });
+        resolve('Fulfilled');
+      } else if (value === 'rejected') {
+        iziToast.error({
+          title: 'Error',
+          message: `❌ Rejected promise in ${delay}ms`,
+        });
+        reject('Rejected');
+      }
+    }, delay);
+  });
 }
