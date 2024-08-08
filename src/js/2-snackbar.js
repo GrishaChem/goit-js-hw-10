@@ -1,6 +1,4 @@
-// Описаний у документації
 import iziToast from 'izitoast';
-// Додатковий імпорт стилів
 import 'izitoast/dist/css/iziToast.min.css';
 
 const input = document.querySelector('[name="delay"]');
@@ -8,15 +6,24 @@ const form = document.querySelector('.form');
 
 form.addEventListener('submit', createPromise);
 
-// input.addEventListener('input', handleInput);
-
 function createPromise(event) {
-  event.preventDefault();
-  const promise = new Promise((resolve, reject) => {
-    const delay = Number(input.value);
-    const selectedRadio = document.querySelector('input[name="state"]:checked');
-    const value = selectedRadio.value;
+  event.preventDefault(); // Предотвращаем перезагрузку страницы
 
+  const delay = Number(input.value); // Преобразуем значение задержки в число
+  const selectedRadio = document.querySelector('input[name="state"]:checked');
+
+  // Проверяем, если радиокнопка не выбрана, показываем ошибку и возвращаемся
+  if (!selectedRadio) {
+    iziToast.error({
+      title: 'Error',
+      message: 'Please select a state (fulfilled/rejected).',
+    });
+    return;
+  }
+
+  const value = selectedRadio.value;
+
+  const promise = new Promise((resolve, reject) => {
     setTimeout(() => {
       if (value === 'fulfilled') {
         resolve(`✅ Fulfilled promise in ${delay}ms`);
@@ -25,17 +32,18 @@ function createPromise(event) {
       }
     }, delay);
   });
+
   promise
     .then(message => {
       iziToast.success({
         title: 'Success',
-        message: `${message}`,
+        message: message, // Выводим сообщение о выполнении промиса
       });
     })
     .catch(message => {
       iziToast.error({
         title: 'Error',
-        message: `${message}`,
+        message: message, // Выводим сообщение о отклонении промиса
       });
     });
 }
